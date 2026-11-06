@@ -1,0 +1,256 @@
+{
+ "senado:2026-08-05::v1": {
+  "t": "Fijar cuántos senadores integran cada comisión",
+  "tramite": true
+ },
+ "diputados:2026-08-05::v1": {
+  "t": "Fijar cuántos diputados integran cada comisión",
+  "tramite": true
+ },
+ "diputados:2026-08-05:16:53:v1": {
+  "t": "Elegir a los integrantes de la Comisión de Acusaciones Constitucionales",
+  "tramite": true
+ },
+ "senado:2026-08-12:12:47:v1": {
+  "t": "Repartir a los senadores en las comisiones",
+  "tramite": true
+ },
+ "diputados:2026-08-13:17:21:v1": {
+  "t": "Repartir a los diputados en las comisiones",
+  "tramite": true
+ },
+ "diputados:2026-08-13:17:29:v1": {
+  "t": "Que comisiones y demás órganos sesionen de forma presencial",
+  "tramite": true
+ },
+ "senado:2026-08-18:16:13:v1": {
+  "t": "Integrantes del Senado en la Comisión de Presupuesto",
+  "tramite": true
+ },
+ "senado:2026-08-18:16:18:v1": {
+  "t": "Integrantes del Senado en la Comisión Permanente",
+  "tramite": true
+ },
+ "diputados:2026-08-18:16:20:v1": {
+  "t": "Integrantes de Diputados en la Comisión de Presupuesto",
+  "tramite": true
+ },
+ "diputados:2026-08-18:16:30:v1": {
+  "t": "Integrantes de Diputados en la Comisión Permanente",
+  "tramite": true
+ },
+ "senado:2026-09-09:15:18:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 106-2026-PCM)"
+ },
+ "senado:2026-09-09:15:21:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 111-2026-PCM)"
+ },
+ "senado:2026-09-09:15:30:v1": {
+  "t": "Autorizar el ingreso de una unidad naval de Bolivia, del 15 al 18 de setiembre"
+ },
+ "senado:2026-09-09:15:57:v1": {
+  "t": "Debatir una comisión especial sobre el Fenómeno El Niño (moción 18)",
+  "tramite": true
+ },
+ "senado:2026-09-09:15:59:v1": {
+  "t": "Debatir una comisión especial sobre el gasto ante El Niño (moción 32)",
+  "tramite": true
+ },
+ "senado:2026-09-09:16:01:v1": {
+  "t": "Debatir una comisión especial sobre la prevención ante El Niño (moción 45)",
+  "tramite": true
+ },
+ "senado:2026-09-09:16:28:v1": {
+  "t": "Crear una comisión especial del Senado sobre el Fenómeno El Niño"
+ },
+ "senado:2026-09-09:16:39:v1": {
+  "t": "Debatir una comisión especial sobre conflictos sociales (moción 31)",
+  "tramite": true
+ },
+ "senado:2026-09-09:17:07:v1": {
+  "t": "Debatir una comisión especial de protección de la infancia (moción 22)",
+  "tramite": true
+ },
+ "senado:2026-09-09:17:25:v1": {
+  "t": "Mandar la comisión de infancia a la Comisión de Salud y Educación en vez de votarla",
+  "tramite": true
+ },
+ "senado:2026-09-09:18:02:v1": {
+  "t": "Crear una comisión especial de protección de la infancia y la adolescencia"
+ },
+ "senado:2026-09-09:18:19:v1": {
+  "t": "Crear una comisión especial para prevenir conflictos sociales"
+ },
+ "senado:2026-09-09:18:26:v1": {
+  "t": "Volver a votar la comisión de infancia (reconsideración)",
+  "tramite": true
+ },
+ "senado:2026-09-09:18:38:v1": {
+  "t": "Debatir una comisión especial de innovación rural (moción 72)",
+  "tramite": true
+ },
+ "senado:2026-09-09:19:21:v1": {
+  "t": "Crear una comisión especial de transferencia tecnológica e innovación rural"
+ },
+ "senado:2026-09-09:19:31:v1": {
+  "t": "Debatir una comisión especial de seguridad ciudadana (moción 71)",
+  "tramite": true
+ },
+ "senado:2026-09-09:19:46:v1": {
+  "t": "Crear una comisión especial de seguridad ciudadana"
+ },
+ "senado:2026-09-09:20:32:v1": {
+  "t": "Citar al canciller para que explique el «Escudo de las Américas»"
+ },
+ "senado:2026-09-09:20:33:v1": {
+  "t": "Fecha para que el canciller se presente: 16 de setiembre",
+  "tramite": true
+ },
+ "senado:2026-09-09:20:37:v1": {
+  "t": "Reglas para las sesiones de los órganos del Senado",
+  "tramite": true
+ },
+ "diputados:2026-09-10:10:33:v1": {
+  "t": "Debatir citar al premier y a los ministros del Interior y Defensa (moción 186)",
+  "tramite": true
+ },
+ "diputados:2026-09-10:10:42:v1": {
+  "t": "Citar al premier y a los ministros del Interior y Defensa para que rindan cuentas"
+ },
+ "diputados:2026-09-10:11:10:v1": {
+  "t": "Debatir una comisión especial sobre El Niño (mociones 15, 46, 85 y 90)",
+  "tramite": true
+ },
+ "diputados:2026-09-10:12:24:v1": {
+  "t": "Crear una comisión especial que fiscalice el gasto ante El Niño"
+ },
+ "diputados:2026-09-10:15:30:v1": {
+  "t": "Debatir la interpelación al ministro de Defensa, Rafael Belaúnde"
+ },
+ "diputados:2026-09-10:15:49:v1": {
+  "t": "Debatir la interpelación al ministro del Interior, César Astudillo"
+ },
+ "diputados:2026-09-10:15:52:v1": {
+  "t": "Que el ministro del Interior responda la interpelación el 17 de setiembre"
+ },
+ "senado:2026-09-16:15:33:v1": {
+  "t": "Autorizar a la presidenta a viajar fuera del país del 21 al 25 de setiembre"
+ },
+ "senado:2026-09-16:19:04:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 110-2026-PCM)"
+ },
+ "senado:2026-09-16:19:06:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 108-2026-PCM)"
+ },
+ "senado:2026-09-16:19:08:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 109-2026-PCM)"
+ },
+ "senado:2026-09-16:19:57:v1": {
+  "t": "Ratificar al presidente del Banco Central de Reserva"
+ },
+ "senado:2026-09-30:12:46:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 113-2026-PCM)"
+ },
+ "senado:2026-09-30:12:49:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 114-2026-PCM)"
+ },
+ "senado:2026-09-30:12:51:v1": {
+  "t": "Prorrogar un estado de emergencia (DS 115-2026-PCM)"
+ },
+ "diputados:2026-10-06:10:32:v1": {
+  "t": "Integrantes de la comisión especial sobre El Niño",
+  "tramite": true
+ },
+ "diputados:2026-10-06:18:51:v1": {
+  "t": "Dar facultades al Ejecutivo para legislar en seguridad ciudadana (primera votación)"
+ },
+ "diputados:2026-10-06:21:42:v1": {
+  "t": "Votar primero la versión alternativa de las facultades (dictamen en minoría)",
+  "tramite": true
+ },
+ "diputados:2026-10-06:22:23:v1": {
+  "t": "Versión alternativa de las facultades legislativas (dictamen en minoría)"
+ },
+ "diputados:2026-10-06:22:32:v1": {
+  "t": "Archivar el pedido de facultades legislativas"
+ },
+ "diputados:2026-10-06:22:41:v1": {
+  "t": "Volver a votar las facultades legislativas (reconsideración)",
+  "tramite": true
+ },
+ "diputados:2026-10-06:23:13:v1": {
+  "t": "Dar facultades al Ejecutivo para legislar en seguridad ciudadana (segunda votación)"
+ },
+ "senado:2026-10-07:13:06:v1": {
+  "t": "Autorizar a la presidenta a viajar fuera del país a fines de octubre y en noviembre"
+ },
+ "senado:2026-10-07:13:10:v1": {
+  "t": "Volver a votar la comisión sobre conflictos sociales (reconsideración)",
+  "tramite": true
+ },
+ "senado:2026-10-21:13:29:v1": {
+  "t": "Dar facultades al Ejecutivo para legislar en seguridad ciudadana y El Niño"
+ },
+ "senado:2026-10-21:16:02:v1": {
+  "t": "Designar a Oswaldo Molina en el directorio del BCR"
+ },
+ "senado:2026-10-21:16:06:v1": {
+  "t": "Designar a José Ricardo Stok en el directorio del BCR"
+ },
+ "senado:2026-10-21:16:08:v1": {
+  "t": "Designar a José Antonio Fernández Baca en el directorio del BCR"
+ },
+ "senado:2026-10-21:16:10:v1": {
+  "t": "Designar a Santiago Roca en el directorio del BCR"
+ },
+ "senado:2026-10-21:16:12:v1": {
+  "t": "Designar a Juan José Marthans en el directorio del BCR"
+ },
+ "senado:2026-10-21:16:19:v1": {
+  "t": "Prorrogar el estado de emergencia en Encañada (Cajamarca) y otros distritos"
+ },
+ "senado:2026-10-21:16:22:v1": {
+  "t": "Prorrogar el estado de emergencia en Tambopata, Inambari, Las Piedras y Laberinto (Madre de Dios)"
+ },
+ "senado:2026-10-21:16:24:v1": {
+  "t": "Prorrogar el estado de emergencia en Lima Metropolitana y otra provincia"
+ },
+ "senado:2026-10-21:16:28:v1": {
+  "t": "Integrantes de la comisión especial de infancia",
+  "tramite": true
+ },
+ "senado:2026-10-28:09:47:v1": {
+  "t": "Autorizar el ingreso de una nave de la Armada de Chile para un ejercicio contra derrames"
+ },
+ "senado:2026-10-28:10:54:v1": {
+  "t": "Prorrogar el estado de emergencia en Pangoa, Río Tambo y distritos del VRAEM"
+ },
+ "senado:2026-10-28:10:57:v1": {
+  "t": "Prorrogar el estado de emergencia en Piura, Sullana, Paita y Talara"
+ },
+ "senado:2026-10-28:10:59:v1": {
+  "t": "Prorrogar el estado de emergencia en los penales de alta peligrosidad"
+ },
+ "senado:2026-10-28:11:14:v1": {
+  "t": "Aprobar las reglas para elegir a los magistrados del Tribunal Constitucional",
+  "r": "El Senado aprobó el reglamento que fija cómo se elegirá a los magistrados del Tribunal Constitucional. Una comisión evaluará a los candidatos sobre 100 puntos: 70 por su currículo y 30 por una entrevista pública. Solo pasan quienes lleguen a 60 puntos, y luego el Pleno elige con dos tercios de los votos. Juntos por el Perú votó en contra: pedía más peso al currículo y que la entrevista valga solo 15 puntos.",
+  "docs": [
+   [
+    "Proyecto 11-2026-2031-S",
+    "https://api.congreso.gob.pe/spley-portal-service/archivo/NDE0NzM5/pdf"
+   ],
+   [
+    "Proyecto 16-2026-2031-S",
+    "https://api.congreso.gob.pe/spley-portal-service/archivo/NDE1NDE3/pdf"
+   ],
+   [
+    "Dictamen en mayoría de la comisión",
+    "https://api.congreso.gob.pe/spley-portal-service/archivo/NDE1NDQ0/pdf"
+   ],
+   [
+    "Resolución Legislativa del Senado 003-2026-2027-S",
+    "https://api.congreso.gob.pe/spley-portal-service/archivo/NDE1Nzkw/pdf"
+   ]
+  ]
+ }
+}

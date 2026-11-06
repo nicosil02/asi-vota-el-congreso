@@ -1,0 +1,32 @@
+name: Actualizar sitio
+on:
+  schedule:
+    - cron: '0 12,23 * * *'  # 7 am y 6 pm de Lima
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  armar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python bajar_base.py
+      - run: python -X utf8 sitio.py
+        env: { CONGRESO_DB: base.db }
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: sitio }
+  publicar:
+    needs: armar
+    if: vars.PUBLICAR == 'si'  # no publica hasta que se active a mano
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.d.outputs.page_url }}' }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

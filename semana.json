@@ -1,0 +1,44 @@
+{
+  "desde": "2026-10-28",
+  "hasta": "2026-11-04",
+  "proyectos": 55,
+  "bancadas": [
+    {
+      "nombre": "Juntos por el Perú",
+      "n": 16
+    },
+    {
+      "nombre": "Ahora Nación",
+      "n": 10
+    },
+    {
+      "nombre": "Renovación Popular",
+      "n": 8
+    }
+  ],
+  "temas": [
+    {
+      "nombre": "Educación",
+      "n": 9
+    },
+    {
+      "nombre": "Salud",
+      "n": 8
+    },
+    {
+      "nombre": "Tributos",
+      "n": 3
+    }
+  ],
+  "votaciones": 7,
+  "unanimes": 3,
+  "dividido": {
+    "camara": "senado",
+    "fecha": "2026-10-28",
+    "asunto": "ACUERDO DEL SENADO DE LA REPÚBLICA QUE APRUEBA LA PRÓRROGA DEL PLAZO DEL ESTADO DE EMERGENCIA ESTABLECIDO MEDIANTE EL DECRETO SUPREMO 125-2026-PCM, SOLICITADO POR LA PRESIDENCIA DE LA REPÚBLICA",
+    "titular": "Prórroga del plazo del estado de emergencia",
+    "si": 37,
+    "no": 13,
+    "abst": 5
+  }
+}
