@@ -1,0 +1,314 @@
+"""CLI del scraper.
+
+Uso:
+  python -m scraper.cli init                       # crea DB y baja comisiones
+  python -m scraper.cli update [--full] [--limit N]
+  python -m scraper.cli refresh-comisiones [--dry-run]
+  python -m scraper.cli recategorizar
+  python -m scraper.cli export [--out proyectos.json]
+  python -m scraper.cli query --comision 4
+  python -m scraper.cli query --estado "EN COMISIÓN"
+  python -m scraper.cli show 14515
+"""
+from __future__ import annotations
+
+import argparse
+import logging
+import re
+import sys
+
+from scraper.api import ApiClient
+from scraper.db import Database
+from scraper.export import export_json
+from scraper.sync import PER_PAR_ID_ACTUAL, run_sync_periodos
+
+DEFAULT_DB = "proyectos.db"
+DEFAULT_JSON = "proyectos.json"
+
+
+def cmd_init(args) -> int:
+    with Database(args.db) as db:
+        db.init_schema()
+        if db.count_comisiones() == 0:
+            client = ApiClient()
+            comis = client.list_comisiones()
+            db.upsert_comisiones(comis)
+            print(f"DB inicializada en {args.db} — {len(comis)} comisiones cargadas.")
+        else:
+            print(f"DB ya tenía {db.count_comisiones()} comisiones; esquema asegurado.")
+    return 0
+
+
+# Comisiones de prueba que alguien creó en la API oficial.
+COMISIONES_BLACKLIST = {
+    57,   # "cremas al tetra"
+    58,   # "poiuy9h0ipohjui0pj"
+}
+
+# En castellano no hay 5+ consonantes seguidas: eso es teclado aporreado.
+_BASURA_RE = re.compile(r"[bcdfghjklmnpqrstvwxyz]{5,}", re.IGNORECASE)
+
+
+def _es_basura_comision(nombre: str | None, cid: int) -> bool:
+    """Solo lo obvio; una basura nueva se agrega a COMISIONES_BLACKLIST."""
+    if cid in COMISIONES_BLACKLIST:
+        return True
+    if not nombre or not nombre.strip():
+        return True
+    return bool(_BASURA_RE.search(nombre))
+
+
+def cmd_refresh_comisiones(args) -> int:
+    """Refresca el catálogo de comisiones y borra la basura. Las Ordinarias
+    nunca se borran."""
+    with Database(args.db) as db:
+        db.init_schema()
+        print("[refresh-comisiones] consultando API Congreso...")
+        client = ApiClient()
+        comis = client.list_comisiones()
+        print(f"[refresh-comisiones] API devolvio {len(comis)} comisiones")
+
+        # 1) Identificar basura tanto en la API como en local
+        api_basura = [c for c in comis if _es_basura_comision(c.get("nombreComision"), c["comisionId"])]
+        comis_limpias = [c for c in comis if not _es_basura_comision(c.get("nombreComision"), c["comisionId"])]
+        if api_basura:
+            print(f"[refresh-comisiones] basura filtrada en respuesta API ({len(api_basura)}):")
+            for c in api_basura:
+                print(f"  - [{c['comisionId']}] {c.get('nombreComision')!r}")
+
+        # 2) Basura ya guardada en local (puede no estar en la API actual)
+        local = db.conn.execute(
+            "SELECT comision_id, nombre, tipo FROM comisiones"
+        ).fetchall()
+        basura_local = []
+        for cid, nombre, tipo in local:
+            # Nunca tocar Ordinarias (catalogo permanente del Congreso PE)
+            if (tipo or "").lower() == "ordinaria":
+                continue
+            if _es_basura_comision(nombre, cid):
+                basura_local.append((cid, nombre))
+        if basura_local:
+            print(f"[refresh-comisiones] basura ya en DB local para borrar ({len(basura_local)}):")
+            for cid, nombre in basura_local:
+                print(f"  - [{cid}] {nombre!r}")
+
+        # 3) Aplicar cambios
+        if args.dry_run:
+            print("[refresh-comisiones] DRY RUN — no se aplicaron cambios")
+        else:
+            with db.tx() as c:
+                for cid, _ in basura_local:
+                    c.execute("DELETE FROM comisiones WHERE comision_id = ?", (cid,))
+                    c.execute("DELETE FROM proyecto_comision WHERE comision_id = ?", (cid,))
+            if basura_local:
+                print(f"[refresh-comisiones] {len(basura_local)} basuras borradas")
+            n = db.upsert_comisiones(comis_limpias)
+            print(f"[refresh-comisiones] {n} comisiones upserteadas (limpias)")
+
+        print(f"[refresh-comisiones] total en catalogo ahora: {db.count_comisiones()}")
+    return 0
+
+
+def cmd_update(args) -> int:
+    with Database(args.db) as db:
+        db.init_schema()
+        por_periodo = run_sync_periodos(db, full=args.full, max_proyectos=args.limit)
+        for (per_par_id, cam), stats in por_periodo.items():
+            print(
+                f"[{per_par_id}/{cam}] vistos={stats.vistos} nuevos={stats.nuevos} "
+                f"actualizados={stats.actualizados} detail_fetches={stats.detail_fetches} "
+                f"errores={stats.errores}"
+            )
+        total_nuevos = sum(s.nuevos for s in por_periodo.values())
+        total_errores = sum(s.errores for s in por_periodo.values())
+        print(f"Sync terminado — total nuevos={total_nuevos} errores={total_errores}")
+    return 0
+
+
+def cmd_export(args) -> int:
+    with Database(args.db) as db:
+        n = export_json(db, args.out)
+        print(f"Exportados {n} proyectos a {args.out}")
+    return 0
+
+
+def cmd_query(args) -> int:
+    with Database(args.db) as db:
+        sql = (
+            "SELECT p.per_par_id, p.cod_tipo_parl, p.pley_num, p.proyecto_ley, p.estado, p.fec_presentacion, "
+            "       p.proponente, p.grupo_parlamentario, p.tema, p.tema_manual, "
+            "       (SELECT GROUP_CONCAT(pc.nombre, ' | ') FROM proyecto_comision pc "
+            "        WHERE pc.per_par_id=p.per_par_id AND pc.cod_tipo_parl=p.cod_tipo_parl "
+            "        AND pc.pley_num=p.pley_num) AS comisiones, "
+            "       p.titulo "
+            "FROM proyectos p"
+        )
+        clauses: list[str] = []
+        params: list = []
+        if args.comision is not None:
+            clauses.append(
+                "EXISTS (SELECT 1 FROM proyecto_comision pc "
+                "WHERE pc.per_par_id=p.per_par_id AND pc.cod_tipo_parl=p.cod_tipo_parl "
+                "AND pc.pley_num=p.pley_num AND pc.comision_id=?)"
+            )
+            params.append(args.comision)
+        if args.tema:
+            clauses.append("p.tema = ?")
+            params.append(args.tema)
+        if args.estado:
+            clauses.append("p.estado = ?")
+            params.append(args.estado)
+        if args.proponente:
+            clauses.append("p.proponente = ?")
+            params.append(args.proponente)
+        if args.partido:
+            clauses.append("p.grupo_parlamentario = ?")
+            params.append(args.partido)
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        sql += " ORDER BY p.fec_presentacion DESC LIMIT ?"
+        params.append(args.limit)
+        rows = db.conn.execute(sql, params).fetchall()
+        for r in rows:
+            tema_marker = "*" if r["tema_manual"] else " "
+            print(
+                f"{r['proyecto_ley']:18s} {r['estado']:22s} {r['fec_presentacion'][:10]} "
+                f"{(r['proponente'] or '-'):12s} {(r['grupo_parlamentario'] or '-'):20s} "
+                f"{tema_marker}<{r['tema'] or '-'}> "
+                f"[{r['comisiones'] or '-'}] {r['titulo'][:60]}"
+            )
+        print(f"\n{len(rows)} resultado(s)")
+    return 0
+
+
+def cmd_recategorizar(args) -> int:
+    """Re-clasifica los proyectos sin etiqueta manual (tema_manual=0)."""
+    with Database(args.db) as db:
+        db.init_schema()
+        if args.force:
+            with db.tx() as c:
+                c.execute("UPDATE proyectos SET tema=NULL, tema_manual=0")
+            print("--force: limpié todas las etiquetas, incluyendo manuales.")
+        rows = db.conn.execute(
+            "SELECT per_par_id, cod_tipo_parl, pley_num, titulo, sumilla FROM proyectos "
+            "WHERE tema_manual = 0"
+        ).fetchall()
+        total = len(rows)
+        print(f"Re-clasificando {total} proyectos (los manuales se respetan)...")
+        for i, r in enumerate(rows, 1):
+            db.classify_and_save(r["per_par_id"], r["cod_tipo_parl"], r["pley_num"], r["titulo"], r["sumilla"])
+            if i % 1000 == 0:
+                print(f"  {i}/{total}")
+        print(f"Listo: {total} proyectos re-clasificados.")
+        print("\nDistribución por tema:")
+        for r in db.conn.execute(
+            "SELECT tema, SUM(tema_manual) AS manuales, COUNT(*) AS total "
+            "FROM proyectos GROUP BY tema ORDER BY total DESC"
+        ):
+            print(f"  {(r['tema'] or '(sin tema)'):36s} total={r['total']:5d}  manuales={r['manuales']}")
+    return 0
+
+
+def cmd_show(args) -> int:
+    with Database(args.db) as db:
+        row = db.conn.execute(
+            "SELECT * FROM proyectos WHERE per_par_id=? AND cod_tipo_parl=? AND pley_num=?",
+            (args.per_par_id, args.cod_tipo_parl, args.pley_num),
+        ).fetchone()
+        if not row:
+            print(f"Proyecto {args.per_par_id}/{args.cod_tipo_parl}/{args.pley_num} no encontrado.", file=sys.stderr)
+            return 1
+        print(f"Proyecto de Ley: {row['proyecto_ley']}  (cámara: {row['cod_tipo_parl']})")
+        print(f"Título: {row['titulo']}")
+        print(f"Estado: {row['estado']}  (id={row['estado_id']})")
+        print(f"Presentado: {row['fec_presentacion']}")
+        print(f"Proponente: {row['proponente']}  Grupo: {row['grupo_parlamentario']}")
+        print(f"Portal: {row['url_portal']}")
+        if row["url_pdf"]:
+            print(f"PDF: {row['url_pdf']}")
+        if row["sumilla"]:
+            print(f"\nSumilla:\n{row['sumilla']}")
+        coms = db.conn.execute(
+            "SELECT nombre FROM proyecto_comision WHERE per_par_id=? AND cod_tipo_parl=? AND pley_num=?",
+            (args.per_par_id, args.cod_tipo_parl, args.pley_num),
+        ).fetchall()
+        if coms:
+            print("\nComisiones: " + ", ".join(c["nombre"] for c in coms))
+        if row["tema"]:
+            origen = "manual (Excel)" if row["tema_manual"] else "auto"
+            print(f"Tema: {row['tema']}  [{origen}]")
+        segs = db.conn.execute(
+            "SELECT fecha, estado, comisiones, observacion FROM seguimientos "
+            "WHERE per_par_id=? AND cod_tipo_parl=? AND pley_num=? ORDER BY fecha DESC",
+            (args.per_par_id, args.cod_tipo_parl, args.pley_num),
+        ).fetchall()
+        if segs:
+            print("\nHistorial:")
+            for s in segs:
+                fecha = (s["fecha"] or "")[:10]
+                line = f"  {fecha}  {s['estado']}"
+                if s["comisiones"]:
+                    line += f"  ({s['comisiones']})"
+                print(line)
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="scraper", description="Scraper de proyectos de ley del Congreso del Perú")
+    p.add_argument("--db", default=DEFAULT_DB, help=f"Ruta del SQLite (default: {DEFAULT_DB})")
+    p.add_argument("-v", "--verbose", action="store_true")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    sub.add_parser("init", help="crea DB y carga comisiones").set_defaults(func=cmd_init)
+
+    rc = sub.add_parser("refresh-comisiones",
+        help="re-baja el catalogo de comisiones del Congreso (limpia basura especial)")
+    rc.add_argument("--dry-run", action="store_true",
+        help="no modifica la DB, solo muestra que cambiaria")
+    rc.set_defaults(func=cmd_refresh_comisiones)
+
+    up = sub.add_parser("update", help="corre sync incremental")
+    up.add_argument("--full", action="store_true", help="re-enriquece todos los proyectos (no solo los cambiados)")
+    up.add_argument("--limit", type=int, default=None, help="máximo de proyectos a procesar")
+    up.set_defaults(func=cmd_update)
+
+    ex = sub.add_parser("export", help="exporta a JSON")
+    ex.add_argument("--out", default=DEFAULT_JSON)
+    ex.set_defaults(func=cmd_export)
+
+    q = sub.add_parser("query", help="lista proyectos con filtros")
+    q.add_argument("--comision", type=int)
+    q.add_argument("--estado")
+    q.add_argument("--proponente", help="ej. Congreso, Ejecutivo, Ciudadanos, Regional")
+    q.add_argument("--partido", help="grupo parlamentario exacto, ej. 'Perú Libre'")
+    q.add_argument("--tema", help="categoría temática, ej. 'Tecnología', 'Agricultura', 'Farma'")
+    q.add_argument("--limit", type=int, default=50)
+    q.set_defaults(func=cmd_query)
+
+    rc = sub.add_parser("recategorizar", help="re-aplica el clasificador automático a los PLs sin etiqueta manual")
+    rc.add_argument("--force", action="store_true",
+                    help="limpia TODAS las etiquetas (incluyendo manuales) y vuelve a correr el clasificador")
+    rc.set_defaults(func=cmd_recategorizar)
+
+    sh = sub.add_parser("show", help="muestra un proyecto e historial")
+    sh.add_argument("pley_num", type=int)
+    sh.add_argument("--per-par-id", dest="per_par_id", type=int, default=PER_PAR_ID_ACTUAL)
+    sh.add_argument("--cod-tipo-parl", dest="cod_tipo_parl", default="C",
+                     help="cámara: C=Congreso/general, D=Diputados, S=Senado (default 'C')")
+    sh.set_defaults(func=cmd_show)
+
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+    )
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

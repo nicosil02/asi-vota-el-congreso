@@ -7,23 +7,61 @@ on:
     branches: [main]
 permissions:
   contents: write
-concurrency: { group: sitio, cancel-in-progress: true }
+concurrency: { group: sitio, cancel-in-progress: false }
 jobs:
   armar:
     runs-on: ubuntu-latest
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: python bajar_base.py
+      - run: pip install -r lectores/requirements.txt
+
+      - name: Traer la base propia (rama datos)
+        run: |
+          if git fetch -q origin datos 2>/dev/null; then
+            git show FETCH_HEAD:base.db.gz | gunzip > base.db
+          else
+            python bajar_base.py  # solo la primera vez
+          fi
+
+      - name: Leer el Congreso
+        working-directory: lectores
+        run: |
+          timeout 1500 python -X utf8 -m scraper.cli --db ../base.db update || echo "[aviso] iniciativas: sigo con lo que hay"
+          timeout 600 python -X utf8 -m pleno.agenda_pdf sync --db ../base.db || echo "[aviso] agendas: sigo"
+          timeout 600 python -X utf8 -m votaciones.pleno_bicameral sync --db ../base.db || echo "[aviso] votaciones: sigo"
+
+      - name: Ver si hay páginas escaneadas sin leer
+        id: pend
+        working-directory: lectores
+        run: |
+          echo "n=$(python -X utf8 -c "
+          import sqlite3
+          from votaciones.pleno_bicameral import init_schema
+          from votaciones.pleno_bicameral_ocr import pendientes
+          c = sqlite3.connect('../base.db'); init_schema(c); print(len(pendientes(c)))")" >> "$GITHUB_OUTPUT"
+      - name: Leer escaneados (OCR)
+        if: steps.pend.outputs.n != '0'
+        working-directory: lectores
+        run: |
+          pip install pillow "numpy==2.3.5" "paddlepaddle==3.2.2" "paddleocr==3.7.0" "paddlex==3.7.2"
+          python -X utf8 -u -m votaciones.pleno_bicameral_ocr --db ../base.db --minutos 90 || echo "[aviso] OCR: sigo"
+
+      - name: Guardar la base (rama datos)
+        run: |
+          mkdir -p /tmp/datos && gzip -c base.db > /tmp/datos/base.db.gz && cd /tmp/datos
+          git init -q -b datos && git add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Base $(date -u +%F)"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" datos
+
       - run: python -X utf8 sitio.py
         env: { CONGRESO_DB: base.db }
       - name: Publicar en la rama gh-pages
-        if: vars.PUBLICAR == 'si'  # no publica hasta que se active a mano
+        if: vars.PUBLICAR == 'si'
         run: |
-          cd sitio
-          touch .nojekyll
-          git init -q -b gh-pages
-          git add -A
+          cd sitio && touch .nojekyll
+          git init -q -b gh-pages && git add -A
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Sitio $(date -u +%F)"
           git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
