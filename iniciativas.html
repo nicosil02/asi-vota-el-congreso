@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E3E8EE"><meta name="description" content="Cómo vota el Congreso del Perú: votaciones, iniciativas, congresistas y bancadas.">
+<title>Iniciativas | Así vota el Congreso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css?v=202611141741">
+</head><body>
+<header class="cab"><div class="col cab-in">
+  <a class="marca" href="index.html">Así vota el Congreso</a>
+  <nav aria-label="Secciones"><a href="index.html">Inicio</a><a href="votaciones.html">Votaciones</a><a href="iniciativas.html" aria-current=page>Iniciativas</a><a href="congresistas.html">Congresistas</a><a href="bancadas.html">Bancadas</a><a href="resumen.html">Resumen semanal</a></nav>
+</div></header>
+<main class="col">
+<h1 class="titulo">Todas las iniciativas</h1>
+<p class="sub">871 presentadas desde julio de 2026</p>
+<script src="datos/iniciativas.js?v=202611141741" defer></script>
+<div id="iniciativas">
+  <div class="herr suelta">
+    <label class="oculto" for="qi">Buscar iniciativas</label>
+    <input id="qi" type="search" class="buscar" placeholder="Busca un tema o un número, por ejemplo: universidades">
+    <div class="selects">
+      <label>Tema<select data-f="tema"><option value="">Todos</option><option value="Agro">Agro</option><option value="Ambiente y recursos">Ambiente y recursos</option><option value="Economía">Economía</option><option value="Educación">Educación</option><option value="Estado y elecciones">Estado y elecciones</option><option value="Justicia">Justicia</option><option value="Obras y servicios">Obras y servicios</option><option value="Salud">Salud</option><option value="Seguridad">Seguridad</option><option value="Sociedad">Sociedad</option><option value="Trabajo y pensiones">Trabajo y pensiones</option><option value="Otros">Otros</option></select></label>
+      <label>Cámara<select data-f="cam"><option value="">Ambas</option><option value="D">Diputados</option><option value="S">Senado</option></select></label>
+      <label>Presentada por<select data-f="quien"><option value="">Todos</option><option value="Ahora Nación">Ahora Nación</option><option value="Colegios Profesionales">Colegios Profesionales</option><option value="Cámara De Diputados">Cámara De Diputados</option><option value="Defensoría Del Pueblo">Defensoría Del Pueblo</option><option value="Fuerza Popular">Fuerza Popular</option><option value="Gobiernos Locales">Gobiernos Locales</option><option value="Iniciativas Ciudadanas">Iniciativas Ciudadanas</option><option value="Instituciones Públicas Autónomas">Instituciones Públicas Autónomas</option><option value="Juntos por el Perú">Juntos por el Perú</option><option value="Multipartidario">Multipartidario</option><option value="Partido Cívico Obras">Partido Cívico Obras</option><option value="Partido del Buen Gobierno">Partido del Buen Gobierno</option><option value="Poder Ejecutivo">Poder Ejecutivo</option><option value="Poder Judicial">Poder Judicial</option><option value="Renovación Popular">Renovación Popular</option><option value="Senado De La República">Senado De La República</option></select></label>
+    </div>
+    <div class="chips" data-grupo="estado"><button type="button" data-v="" aria-pressed="true">Todas</button><button type="button" data-v="pres" aria-pressed="false">Presentada</button><button type="button" data-v="com" aria-pressed="false">En comisión</button><button type="button" data-v="dict" aria-pressed="false">Con dictamen</button><button type="button" data-v="sen" aria-pressed="false">Pasó al Senado</button><button type="button" data-v="apr" aria-pressed="false">Aprobada</button><button type="button" data-v="ley" aria-pressed="false">Publicada</button><button type="button" data-v="fin" aria-pressed="false">Archivada o retirada</button></div>
+  </div>
+  <p class="cuenta nota"></p>
+  <div class="tabla-caja"><table class="tabla-i"><thead><tr>
+    <th data-o="9" aria-sort="descending"><button type="button">Presentada</button></th><th data-o="1"><button type="button">N.º</button></th>
+    <th class="c-cam">Cámara</th><th>Título</th><th data-o="4"><button type="button">Estado</button></th>
+    <th class="c-ext">Bancada</th><th class="c-ext">Comisión</th><th class="c-ext" data-o="5"><button type="button">Tema</button></th>
+  </tr></thead><tbody id="lista-i"></tbody></table></div>
+  <button type="button" class="mas" hidden>Mostrar más</button>
+</div>
+<div class="velo" hidden></div>
+<section class="hoja" role="dialog" aria-modal="true" aria-labelledby="h-titulo" hidden tabindex="-1">
+  <div class="hoja-cab"><span class="meta" id="h-meta"></span><button type="button" class="cerrar">Cerrar</button></div>
+  <h2 id="h-titulo"></h2><div id="h-estado"></div>
+  <div class="hoja-cuerpo" id="h-cuerpo"></div>
+</section></main>
+<footer class="col pie">
+  <p>Proyecto independiente y sin fines de lucro. Los datos salen de lo que publica el Congreso de la República: actas, votos por congresista, proyectos y su trámite.
+  Fotos y logos de Wikimedia Commons.</p>
+</footer>
+<script src="app.js?v=202611141741" defer></script>
+</body></html>
